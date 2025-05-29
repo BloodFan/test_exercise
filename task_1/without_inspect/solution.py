@@ -1,8 +1,7 @@
 from functools import wraps
 from typing import Any, Callable, TypeVar, get_type_hints
 
-
-RT = TypeVar('RT')
+RT = TypeVar("RT")
 
 
 def strict(func: Callable[..., RT]) -> Callable[..., RT]:
@@ -24,15 +23,19 @@ def strict(func: Callable[..., RT]) -> Callable[..., RT]:
         # Проверка на пропущенные аргументы
         if len(provided_args) + len(provided_kwargs) < len(expected_arg_names):
             missing_args = [
-                name for name in expected_arg_names
-                if name not in kwargs and expected_arg_names.index(name) >= len(provided_args)
+                name
+                for name in expected_arg_names
+                if name not in kwargs
+                and expected_arg_names.index(name) >= len(provided_args)
             ]
             raise TypeError(f"Missing required arguments: {missing_args}")
 
         # Проверка на неожиданные именованные аргументы
         unexpected_kwargs = [k for k in kwargs if k not in expected_arg_names]
         if unexpected_kwargs:
-            raise TypeError(f"Unexpected keyword argument(s): {unexpected_kwargs}")
+            raise TypeError(
+                f"Unexpected keyword argument(s): {unexpected_kwargs}"
+            )
 
         # Проверяем превышение количества аргументов
         if len(provided_args) + len(provided_kwargs) > len(expected_arg_names):

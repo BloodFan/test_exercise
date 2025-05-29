@@ -1,10 +1,10 @@
 # pytest tests_exercise_2.py -v
-import pytest
-from unittest.mock import patch
-from solution import normalize_first_char, fetch_animals_by_letter
 from asyncio import Semaphore
+from unittest.mock import patch
 
+import pytest
 from mock_api_client import MockAPIClient
+from solution import fetch_animals_by_letter, normalize_first_char
 
 
 def test_normalize_first_char():
@@ -42,6 +42,7 @@ async def test_main_integration(tmp_path, monkeypatch):
 
     with patch("solution.APIClient", MockAPIClient):
         from solution import main
+
         await main()
 
     assert test_csv.exists()
@@ -53,11 +54,12 @@ async def test_main_integration(tmp_path, monkeypatch):
 
 @pytest.mark.asyncio
 async def test_file_write_error(caplog):
-    """Проверка обработки ошибки записи в файл. """
-    with patch("solution.APIClient", MockAPIClient), \
-         patch("solution.open", side_effect=IOError("Disk full")):
-
+    """Проверка обработки ошибки записи в файл."""
+    with patch("solution.APIClient", MockAPIClient), patch(
+        "solution.open", side_effect=IOError("Disk full")
+    ):
         from solution import main
+
         await main()
 
         assert "Ошибка записи в файл: Disk full" in caplog.text

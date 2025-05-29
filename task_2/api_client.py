@@ -1,12 +1,12 @@
 import logging
-import aiohttp
 
+import aiohttp
 from my_backoff import backoff
 
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[logging.StreamHandler()]
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler()],
 )
 logger = logging.getLogger("api_client")
 
@@ -46,7 +46,7 @@ class APIClient:
         border_sleep_time=10,
         max_restart=5,
         errors=(aiohttp.ClientError, aiohttp.ServerTimeoutError, ServerError),
-        client_errors=(HTTPException,)
+        client_errors=(HTTPException,),
     )
     async def request(self, method: str, endpoint: str, **kwargs):
         if not self.session:
@@ -57,24 +57,26 @@ class APIClient:
         url = f"{self.base_url}{endpoint}"
         try:
             async with self.session.request(method, url, **kwargs) as response:
-                response_text = await response.text() if response.status >= 400 else None
+                response_text = (
+                    await response.text() if response.status >= 400 else None
+                )
                 if 400 <= response.status < 500:
                     raise HTTPException(
                         status_code=response.status,
                         detail=f"Client error: {response_text}",
-                        response_text=response_text
+                        response_text=response_text,
                     )
                 elif 500 <= response.status < 600:
                     raise ServerError(
                         status_code=response.status,
                         detail=f"Server error: {response_text}",
-                        response_text=response_text
+                        response_text=response_text,
                     )
                 return await response.json()
         except aiohttp.ClientError as client_error:
             logger.warning(
                 f"Network error during request to "
                 f"{url} (will retry): {client_error}",
-                extra={"method": method, "endpoint": endpoint}
+                extra={"method": method, "endpoint": endpoint},
             )
             raise client_error

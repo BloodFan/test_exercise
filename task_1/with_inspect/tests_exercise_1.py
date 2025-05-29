@@ -1,6 +1,7 @@
 # pytest tests_exercise_1.py -v
-import pytest
 import re
+
+import pytest
 from solution import strict
 
 
@@ -29,7 +30,7 @@ def test_kwargs_type_error():
 
 def test_metadata():
     """Тест сохранения метаданных функции."""
-    assert sum_two.__name__ == 'sum_two'
+    assert sum_two.__name__ == "sum_two"
     assert sum_two.__doc__ == "Складывает два целых числа."
 
 
@@ -37,13 +38,17 @@ def test_missing_arguments():
     """Проверяет реакцию на недостаток аргументов."""
     with pytest.raises(
         TypeError,
-        match=re.escape("Missing required arguments: ['b']")
+        match=re.escape(
+            "sum_two() missing 1 required positional argument: 'b'"
+        ),
     ):
         sum_two(1)  # Пропущен аргумент b
 
     with pytest.raises(
         TypeError,
-        match=re.escape("Missing required arguments: ['a', 'b']")
+        match=re.escape(
+            "sum_two() missing 2 required positional arguments: 'a' and 'b'"
+        ),
     ):
         sum_two()  # Все аргументы пропущены
 
@@ -53,22 +58,23 @@ def test_mixed_args_kwargs():
     assert sum_two(1, b=2) == 3  # Корректно
     with pytest.raises(
         TypeError,
-        match=re.escape("Missing required arguments: ['b']")
+        match=re.escape(
+            "sum_two() missing 1 required positional argument: 'b'"
+        ),
     ):
         sum_two(a=1)  # Только kwargs, но b пропущен
 
 
 def test_extra_arguments():
     "Проверяет обработку избыточных позиционных аргументов."
-    with pytest.raises(TypeError, match="Expected 2 arguments, got 3"):
+    with pytest.raises(TypeError, match="too many positional arguments"):
         sum_two(1, 2, 3)  # Лишний аргумент
 
 
 def test_unexpected_kwarg():
     "Проверяет обнаружение неизвестных именованных аргументов."
     with pytest.raises(
-        TypeError,
-        match=re.escape("Unexpected keyword argument(s): ['c']")
+        TypeError, match=re.escape("got an unexpected keyword argument 'c'")
     ):
         sum_two(a=1, b=2, c=3)
 
@@ -76,6 +82,7 @@ def test_unexpected_kwarg():
 def test_no_annotations():
     "Проверяет требование наличия аннотаций у функции."
     with pytest.raises(TypeError, match="Function must have type annotations"):
+
         @strict
         def no_annotations(a, b):
             return a + b

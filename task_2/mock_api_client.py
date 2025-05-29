@@ -23,7 +23,7 @@ class MockAPIClient:
                             {"title": "Бегемот", "pageid": 2},
                         ]
                     },
-                    "continue": {"cmcontinue": "next_batch"}
+                    "continue": {"cmcontinue": "next_batch"},
                 }
             else:
                 return {

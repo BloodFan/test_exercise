@@ -1,15 +1,16 @@
 import asyncio
-from asyncio import Semaphore
 import csv
 import logging
 import re
+from asyncio import Semaphore
 from typing import Dict
+
 from api_client import APIClient
 
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[logging.StreamHandler()]
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler()],
 )
 logger = logging.getLogger("solution")
 
@@ -22,15 +23,15 @@ WIKI_ANIMALS_EXPECTED = 47331  # актуально на 29.05.25
 def normalize_first_char(title: str) -> str:
     """Нормализует первую букву названия"""
     if not title:
-        return '#'
+        return "#"
 
     # Удаляем все не-буквы в начале
-    first_char = re.sub(r'^[^а-яА-ЯёЁ]*', '', title)
+    first_char = re.sub(r"^[^а-яА-ЯёЁ]*", "", title)
     if not first_char:
-        return '#'
+        return "#"
 
     first_char = first_char[0].upper()
-    return 'Е' if first_char in ('Ё', 'Е') else first_char
+    return "Е" if first_char in ("Ё", "Е") else first_char
 
 
 async def fetch_animals_by_letter(
@@ -60,7 +61,10 @@ async def fetch_animals_by_letter(
 
             response = await client.request("GET", "/w/api.php", params=params)
 
-            if "query" not in response or "categorymembers" not in response["query"]:
+            if (
+                "query" not in response
+                or "categorymembers" not in response["query"]
+            ):
                 logger.error(
                     f"Неверный формат ответа для буквы {letter}: {response}"
                 )
@@ -76,7 +80,9 @@ async def fetch_animals_by_letter(
 
             continue_token = response.get("continue", {}).get("cmcontinue")
             if not continue_token:
-                logger.info(f"[{letter}] Все животные обработаны. Итого: {animals_count}")
+                logger.info(
+                    f"[{letter}] Все животные обработаны. Итого: {animals_count}"
+                )
                 break
 
         return animals_count
@@ -87,7 +93,7 @@ async def main():
 
     # без "Ё", '#' - аггрегирует спецсимволы и все не начинается с кириллицы.
     # alphabet = "#АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЭЮЯ"
-    alphabet = '#' + ''.join(map(chr, range(ord('А'), ord('Я') + 1)))
+    alphabet = "#" + "".join(map(chr, range(ord("А"), ord("Я") + 1)))
 
     results: Dict[str, int] = {}
 
@@ -102,14 +108,18 @@ async def main():
             results[letter] = count
 
     try:
-        with open(CSV_FILENAME, "w", newline="", encoding="utf-8-sig") as csvfile:
+        with open(
+            CSV_FILENAME, "w", newline="", encoding="utf-8-sig"
+        ) as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(["Буква", "Количество"])
             writer.writerows(results.items())
 
         total = sum(results.values())
         logger.info("Результаты сохранены в файл beasts.csv.")
-        logger.info(f"Общее количество животных: {total} (ожидалось: {WIKI_ANIMALS_EXPECTED})")
+        logger.info(
+            f"Общее количество животных: {total} (ожидалось: {WIKI_ANIMALS_EXPECTED})"
+        )
     except IOError as e:
         logger.error(f"Ошибка записи в файл: {e}")
 

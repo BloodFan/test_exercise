@@ -2,7 +2,7 @@ from functools import wraps
 from inspect import signature
 from typing import Any, Callable, TypeVar, get_type_hints
 
-RT = TypeVar('RT')
+RT = TypeVar("RT")
 
 
 def strict(func: Callable[..., RT]) -> Callable[..., RT]:
@@ -18,9 +18,7 @@ def strict(func: Callable[..., RT]) -> Callable[..., RT]:
         bound_args.apply_defaults()
 
         for name, value in bound_args.arguments.items():
-            if name in annotations and not isinstance(
-                value, annotations[name]
-            ):
+            if name in annotations and not isinstance(value, annotations[name]):
                 raise TypeError(
                     f"Argument '{name}' must be "
                     f"{annotations[name].__name__}, not {type(value).__name__}"

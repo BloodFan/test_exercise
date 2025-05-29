@@ -5,14 +5,13 @@ import time
 from functools import wraps
 from typing import Any, Callable, Coroutine, Iterable, TypeVar
 
-
 RT = TypeVar("RT")
 FuncType = Callable[..., RT | Coroutine[Any, Any, RT]]
 
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[logging.StreamHandler()]
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler()],
 )
 logger = logging.getLogger("backoff")
 
